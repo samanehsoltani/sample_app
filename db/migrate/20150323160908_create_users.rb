@@ -1,3 +1,4 @@
+#rails generate model User name:string email:string
 class CreateUsers < ActiveRecord::Migration
   def change
     create_table :users do |t|
