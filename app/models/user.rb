@@ -25,7 +25,7 @@ class User < ActiveRecord::Base
                     uniqueness: {case_sensitive: false}
 
   has_secure_password
-  validates :password, length: {minimum: 6}
+  validates :password, length: {minimum: 6}, allow_blank: true
   #validates_length_of(:name, maximum: 50)
   #validates_length_of(:email, maximum: 255)
 

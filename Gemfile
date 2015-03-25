@@ -1,8 +1,11 @@
 source 'https://rubygems.org'
 
 gem 'rails',                '4.2.0'
-gem 'bootstrap-sass',       '3.2.0.0'
 gem 'bcrypt',               '3.1.7' #To make the password , has_secure_password uses a state-of-the-art hash function called bcrypt.
+gem 'faker',                '1.4.2' #allows us to make sample users with semi-realistic names and email addresses
+gem 'will_paginate',        '3.0.7' #pagination methods
+gem 'bootstrap-will_paginate', '0.0.10' #configures will_paginate to use Bootstrap’s pagination styles
+gem 'bootstrap-sass',       '3.2.0.0'
 gem 'sass-rails',           '5.0.1'
 gem 'uglifier',             '2.5.3'
 gem 'coffee-rails',         '4.1.0'

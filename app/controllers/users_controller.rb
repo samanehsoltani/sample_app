@@ -1,5 +1,9 @@
 class UsersController < ApplicationController
 
+  before_action  :logged_in_user, only: [:index, :edit, :update, :destroy]
+  before_action :correct_user, only: [ :edit, :update]
+  before_action :admin_user,     only: :destroy
+
   def show #manually added
     @user = User.find(params[:id])
     #debugger  -->Rails server shows a byebug prompt which can be treated like a Rails console
@@ -20,11 +24,61 @@ class UsersController < ApplicationController
     end
   end
 
-  private
-  #returns an appropriate initialization hash
-  def user_params
-    params.require(:user).permit(:name, :email, :password,
-                                 :password_confirmation)
+  def edit
+    @user = User.find(params[:id])
   end
 
+  def update
+    @user = User.find(params[:id])
+    if @user.update_attributes(user_params)
+      flash[:success] = "profile updated"
+      redirect_to @user
+    else
+      render 'edit'
+    end
+  end
+
+  def index
+    @users = User.paginate(page: params[:page])
+  end
+
+  def destroy
+    User.find(params[:id]).destroy
+    flash[:success] = "User deleted"
+    redirect_to users_url
+  end
+
+  private
+    #returns an appropriate initialization hash
+    def user_params
+      params.require(:user).permit(:name, :email, :password,
+                                   :password_confirmation)
+    end
+
+    # Before filters
+
+    # Confirms a logged-in user.
+    def logged_in_user
+      unless logged_in?
+        store_location
+        flash[:danger] = "Please log in."
+        redirect_to login_url
+      end
+    end
+
+    def correct_user
+      #sami
+      # unless current_user.id.to_s === params[:id].to_s ....
+      # OR
+      @user = User.find(params[:id])
+      unless current_user?(@user)
+        store_location
+        redirect_to(root_url)
+      end
+    end
+
+    # Confirms an admin user.
+    def admin_user
+      redirect_to(root_url) unless current_user.admin?
+    end
 end
