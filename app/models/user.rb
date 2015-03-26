@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  attr_accessor :remember_token, :activation_token
+  attr_accessor :remember_token, :activation_token, :reset_token
 =begin
   Expression	Meaning
   /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i	full regex
@@ -48,6 +48,24 @@ class User < ActiveRecord::Base
     update_attribute(:remember_digest, User.digest(remember_token))
   end
 
+  # Activates an account.
+  def activate
+    update_columns(activated: true, activated_at: Time.zone.now)
+  end
+
+  # Sets the password reset attributes.
+  def create_reset_digest
+    self.reset_token = User.new_token
+    update_columns(reset_digest:  User.digest(reset_token),
+                   reset_sent_at: Time.zone.now)
+    #update_attribute(:reset_digest,  User.digest(reset_token))
+    #update_attribute(:reset_sent_at, Time.zone.now)
+  end
+
+  # Sends password reset email.
+  def send_password_reset_email
+    UserMailer.password_reset(self).deliver_now
+  end
 =begin
   # Returns true if the given token matches the digest.
   def authenticated?(remember_token)
@@ -69,7 +87,12 @@ class User < ActiveRecord::Base
     update_attribute(:remember_digest, nil)
   end
 
-private
+  # Returns true if a password reset has expired.
+  def password_reset_expired?
+    reset_sent_at < 2.hours.ago
+  end
+
+  private
 
   # Converts email to all lower-case.
   def downcase_email

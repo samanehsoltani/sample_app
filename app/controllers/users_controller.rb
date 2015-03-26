@@ -6,6 +6,7 @@ class UsersController < ApplicationController
 
   def show #manually added
     @user = User.find(params[:id])
+    redirect_to root_url and return unless @user.activated
     #debugger  -->Rails server shows a byebug prompt which can be treated like a Rails console
   end
 
@@ -43,7 +44,9 @@ class UsersController < ApplicationController
   end
 
   def index
-    @users = User.paginate(page: params[:page])
+   # @users = User.paginate(page: params[:page])
+    # show only active users.
+    @users = User.where(activated: true).paginate(page: params[:page])
   end
 
   def destroy
