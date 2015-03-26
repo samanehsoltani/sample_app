@@ -80,6 +80,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 
   test "login with remembering2" do
     log_in_as(@user, remember_me: '1')
+    #you can access instance variables defined in the controller by using assigns with the corresponding symbol.
     assert_equal assigns(:user).remember_token, cookies['remember_token']
   end
 

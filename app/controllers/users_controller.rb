@@ -16,9 +16,13 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save #save the user and return true if it's successfully added
-      log_in @user
-      flash[:success] = "Welcome to the Sample App!"
-      redirect_to @user # equivalent to redirect_to user_url(@user)
+      #log_in @user
+      #flash[:success] = "Welcome to the Sample App!"
+      #redirect_to @user # equivalent to redirect_to user_url(@user)
+      UserMailer.account_activation(@user).deliver_now
+      flash[:info] = "Please check your email to activate your account."
+      redirect_to root_url
+
     else
       render 'new'
     end
