@@ -3,6 +3,9 @@ source 'https://rubygems.org'
 gem 'rails',                '4.2.0'
 gem 'bcrypt',               '3.1.7' #To make the password , has_secure_password uses a state-of-the-art hash function called bcrypt.
 gem 'faker',                '1.4.2' #allows us to make sample users with semi-realistic names and email addresses
+gem 'carrierwave',             '0.10.0' #image uploader
+gem 'mini_magick',             '3.8.0' #image resizing
+gem 'fog',                     '1.23.0' #image upload in production
 gem 'will_paginate',        '3.0.7' #pagination methods
 gem 'bootstrap-will_paginate', '0.0.10' #configures will_paginate to use Bootstrap’s pagination styles
 gem 'bootstrap-sass',       '3.2.0.0'

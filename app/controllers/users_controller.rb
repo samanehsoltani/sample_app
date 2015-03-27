@@ -7,6 +7,8 @@ class UsersController < ApplicationController
   def show #manually added
     @user = User.find(params[:id])
     redirect_to root_url and return unless @user.activated
+    @microposts = @user.microposts.paginate(page: params[:page])
+
     #debugger  -->Rails server shows a byebug prompt which can be treated like a Rails console
   end
 
@@ -64,6 +66,7 @@ class UsersController < ApplicationController
 
     # Before filters
 
+=begin  Moved to application controller
     # Confirms a logged-in user.
     def logged_in_user
       unless logged_in?
@@ -72,6 +75,7 @@ class UsersController < ApplicationController
         redirect_to login_url
       end
     end
+=end
 
     def correct_user
       #sami
