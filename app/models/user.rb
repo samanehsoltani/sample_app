@@ -1,6 +1,28 @@
 class User < ActiveRecord::Base
   has_many :microposts,
            dependent: :destroy # if a user is destroyed, the user’s microposts should be destroyed as well
+  #sami
+  #An id used in this manner to connect two database tables is known as a foreign key,
+  # and when the foreign key for a User model object is user_id,
+  # Rails infers the association automatically: by default,
+  # Rails expects a foreign key of the form <class>_id, where <class> is the
+  # lower-case version of the class name; So we should specify the name if it's not same
+  has_many :active_relationships, class_name:  "Relationship",
+           foreign_key: "follower_id",
+           dependent:   :destroy
+  #By default, in a has_many :through association Rails looks for a foreign key
+  # corresponding to the singular version of the association. In other words,
+  # with code like :has_many :followeds, through: :active_relationships
+  # Rails would see “followeds” and use the singular “followed”,
+  # assembling a collection using the followed_id in the relationships table
+  #It's awkward to use followeds so we use following
+  has_many :following, through: :active_relationships, source: :followed
+
+  has_many :passive_relationships, class_name:  "Relationship",
+           foreign_key: "followed_id",
+           dependent:   :destroy
+  has_many :followers, through: :passive_relationships, source: :follower
+
   attr_accessor :remember_token, :activation_token, :reset_token
 =begin
   Expression	Meaning
@@ -95,12 +117,40 @@ class User < ActiveRecord::Base
   end
 
   # Defines a proto-feed.
-  # See "Following users" for the full implementation.
   def feed
-    Micropost.where("user_id = ?", id)
-    #microposts
+    #sami: the following_ids method is synthesized by Active Record based on the
+    # has_many :following association; the result is that
+    # we need only append _ids to the association name to get the ids
+    # corresponding to the user.following collection
+    #following_ids pulls all the followed users’ ids into memory, and creates an
+    # array the full length of the followed users array. In the case we have too many
+    # following it's not efficient to use:
+    #Micropost.where("user_id IN (?) OR user_id = ?", following_ids,id)
+    #which is equivalent to
+    #Micropost.where("user_id IN (:following_ids) OR user_id = :user_id",
+    #                  following_ids: following_ids, user_id: id)
+    # So we use subselect:
+    following_ids = "SELECT followed_id FROM relationships
+                     WHERE  follower_id = :user_id"
+    Micropost.where("user_id IN (#{following_ids})
+                     OR user_id = :user_id", user_id: id)
+
   end
 
+  # Follows a user.
+  def follow(other_user)
+    active_relationships.create(followed_id: other_user.id)
+  end
+
+  # Unfollows a user.
+  def unfollow(other_user)
+    active_relationships.find_by(followed_id: other_user.id).destroy
+  end
+
+  # Returns true if the current user is following the other user.
+  def following?(other_user)
+    following.include?(other_user)
+  end
   private
 
   # Converts email to all lower-case.

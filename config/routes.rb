@@ -15,10 +15,20 @@ Rails.application.routes.draw do
   post   'login'   => 'sessions#create'
   delete 'logout'  => 'sessions#destroy'
 
-  resources :users
+  #HTTP request	URL	Action	Named route
+  #GET	/users/1/following	following	following_user_path(1)
+  #GET	/users/1/followers	followers	followers_user_path(1)
+
+  resources :users do
+    member do
+      get :following, :followers
+    end
+  end
+
   resources :account_activations, only: [:edit]
   resources :password_resets,     only: [:new, :create, :edit, :update]
   resources :microposts,          only: [:create, :destroy]
+  resources :relationships,       only: [:create, :destroy]
 end
 
 
